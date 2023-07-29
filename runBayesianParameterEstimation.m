@@ -17,7 +17,7 @@ restoredefaultpath
 addpath(fullfile(startDir,'/Bayesian_utils'));
 
 %% Specify variables
-dataSource = 1
+dataSource = 1;
 whichQuals = 1;
 doParallel = 0;
 seedChoice = 1;

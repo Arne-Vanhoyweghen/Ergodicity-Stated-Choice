@@ -1,4 +1,4 @@
-function setBayesian(dataSource,whichJAGS,whichQuals,doParallel,startDir,seedChoice)
+function setBayesian(dataSource,whichQuals,doParallel,startDir,seedChoice)
 
 % setHLM sets up multiple HLM models to run sequentially according to inputs
 
@@ -19,11 +19,10 @@ nThin        = 10;                     %thinnning factor, 1 = no thinning, 2=eve
 
 %% Specifies subjects, trials and directory_name
 switch dataSource
-    case {1}, subjList = 1:41;
-    case {2}, subjList = 1:40;,
+    case {1}, subjList = 1:40;
+    case {2}, subjList = 1:41;
 end %dataSource
-nTrials = 80;
+nTrials = 40;
 
 %% Runs HLMs sequentially
-computeBayesian(dataSource,nBurnin(whichQuals),nSamples(whichQuals),nThin,nChains(whichQuals),subjList,whichJAGS,doParallel,startDir,nTrials,seedChoice)
-end
+computeBayesian(dataSource,nBurnin(whichQuals),nSamples(whichQuals),nThin,nChains(whichQuals),subjList,doParallel,startDir,nTrials,seedChoice)

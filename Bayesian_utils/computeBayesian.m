@@ -1,4 +1,4 @@
-function computeBayesian(dataSource,,nBurnin,nSamples,nThin,nChains,subjList,whichJAGS,doParallel,startDir,nTrials,seedChoice)
+function computeBayesian(dataSource,nBurnin,nSamples,nThin,nChains,subjList,doParallel,startDir,nTrials,seedChoice)
 %% Hiercharchical Latent Mixture (HLM) model
 % This is a general script for running several types of hierarchical
 % bayesian model via JAGS. It can run hiearchical latent mixture models in
@@ -25,12 +25,12 @@ matjagsdir=fullfile(startDir,'/Bayesian_utils/matjags');
 addpath(matjagsdir)
 jagsDir=fullfile(startDir,'/Bayesian_utils/JAGS');
 addpath(jagsDir)
-dataDir=fullfile(startDir,'/data',folder);
+dataDir=fullfile(startDir,'/data');
 
 %% Choose & load data
 switch dataSource
-    case{1}, load(fullfile(dataDir, 'timed_data.mat'); source = 'timed_data';
-    case{2}, load(fullfile(dataDir, 'non_timed_data.mat'); source  = 'non_timed_data';
+    case{1}, load(fullfile(dataDir, 'timed_data.mat')); source = 'timed_data';
+    case{2}, load(fullfile(dataDir, 'non_timed_data.mat')); source  = 'non_timed_data';
 end %dataSource
 
 %% Choose JAGS file
@@ -56,9 +56,8 @@ sigmaEtaL=0.01; sigmaEtaU=1.6; %parameter for the standard diviation on the eta 
 %% Print information for user
 disp('**************');
 disp(['Mode: ', modelName])
-disp(['dataSource: ', folder])
+disp(['dataSource: ', source])
 disp(['started: ',datestr(clock)])
-disp(['MCMC number: ',num2str(whichJAGS)])
 disp('**************');
 
 %% Initialise matrices
