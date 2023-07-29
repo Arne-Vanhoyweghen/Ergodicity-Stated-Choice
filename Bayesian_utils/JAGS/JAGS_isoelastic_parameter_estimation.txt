@@ -11,11 +11,6 @@ for (t in 1:nTrials){
     wLL[i,c,t]    = w[i,c,t] + dwLL[i,c,t]                                       #wealth if outcome Left Lower
     wRU[i,c,t]    = w[i,c,t] + dwRU[i,c,t]                                       #wealth if outcome Right Upper
     wRL[i,c,t]    = w[i,c,t] + dwRL[i,c,t]                                       #wealth if outcome Right Lower
-    wLUp[i,c,t]   = ifelse(wLU[i,c,t] > 0, wLU[i,c,t], 1)                          #replacing if negative (doesn't matter cause choice is deleted in input)
-    wLLp[i,c,t]   = ifelse(wLL[i,c,t] > 0, wLL[i,c,t], 1)                          #replacing if negative (doesn't matter cause choice is deleted in input)
-    wRUp[i,c,t]   = ifelse(wRU[i,c,t] > 0, wRU[i,c,t], 1)                          #replacing if negative (doesn't matter cause choice is deleted in input)
-    wRLp[i,c,t]   = ifelse(wRL[i,c,t] > 0, wRL[i,c,t], 1)                          #replacing if negative (doesn't matter cause choice is deleted in input)
-    wp[i,c,t]     = ifelse(w[i,c,t] > 0, w[i,c,t], 1)                              #replacing if negative (doesn't matter cause choice is deleted in input)
     u[i,c,t]      = (pow(wp[i,c,t],oneminEta[i,c]) - 1) / oneminEta[i,c]          #utility of wealth prior to trial
     uLU[i,c,t]    = (pow(wLUp[i,c,t],oneminEta[i,c]) - 1) / oneminEta[i,c]        #transforms wealth into utility
     uLL[i,c,t]    = (pow(wLLp[i,c,t],oneminEta[i,c]) - 1) / oneminEta[i,c]        #transforms wealth into utility
@@ -60,7 +55,7 @@ for (c in 1:nConditions){
 
     #eta parameter
     mu_eta[c]            ~ dunif(muEtaL,muEtaU)            #mean of eta
-    tau_eta[c]           = pow(sigma_eta[c],-2)                 #precision of eta
+    tau_eta[c]           = pow(sigma_eta[c],-2)            #precision of eta
     sigma_eta[c]         ~ dunif(sigmaEtaL,sigmaEtaU)      #std on eta
 }#end of conditions
 
