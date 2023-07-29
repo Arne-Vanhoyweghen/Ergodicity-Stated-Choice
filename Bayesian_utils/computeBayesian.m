@@ -29,8 +29,8 @@ dataDir=fullfile(startDir,'/data',folder);
 
 %% Choose & load data
 switch dataSource
-    case{1}, load(fullfile(dataDir, 'timed_data.mat')
-    case{2}, load(fullfile(dataDir, 'non_timed_data.mat')
+    case{1}, load(fullfile(dataDir, 'timed_data.mat'); source = 'timed_data';
+    case{2}, load(fullfile(dataDir, 'non_timed_data.mat'); source  = 'non_timed_data';
 end %dataSource
 
 %% Choose JAGS file
@@ -145,7 +145,7 @@ toc % end clock
 
 %% Save stats and samples
 disp('saving samples...')
-save(fullfile(dataDir, append('Bayesia_parameter_estimation','_',dataSource)),'stats','samples','-v7.3')
+save(fullfile(dataDir, append('Bayesia_parameter_estimation','_',source)),'stats','samples','-v7.3')
 
 %% Print readouts
 disp('stats:'),disp(stats)%print out structure of stats output
