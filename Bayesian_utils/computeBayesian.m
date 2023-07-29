@@ -1,21 +1,15 @@
 function computeBayesian(dataSource,nBurnin,nSamples,nThin,nChains,subjList,doParallel,startDir,nTrials,seedChoice)
-%% Hiercharchical Latent Mixture (HLM) model
-% This is a general script for running several types of hierarchical
-% bayesian model via JAGS. It can run hiearchical latent mixture models in
-% which different utility models can be compared via inference on the model
-% indicator variables, and it can run without latent mixtures of models for
-% instance in order to estimate parameters of a given utility model. It
-% takes as input the following:
+
+% computeBayesian read in and manipulate all data,
+% as well as specify variables needed to run the Bayesian model through JAGS.
 
 % dataSource    - which data source to estimate data on; non-timed (1) or timed (2)
-% whichJAGS     - which copy of matjags to run on. this allows parallel jobs to run as long as they use different matjags
 % nBurnin       - specifies how many burn in samples to run
 % nSamples      - specifies the number of samples to run
 % nThin         - specifies the thinnning number
 % nChains       - specifies number of chains
 % subjList      - list of subject numbers to include
-% whichJAGS     - sets which copy of matjags to run
-% doParallel    - sets whether to run chains in parallel
+% doParallel    - sets whether to run chains sequentially or in parallel
 % startDir      - root directory for the repo
 % nTrials       - number of trials in experiment
 
@@ -43,15 +37,15 @@ nSubjects=length(subjList);%number of subjects
 
 %% Set bounds of hyperpriors
 %hard code the upper and lower bounds of hyperpriors, typically uniformly
-%distributed in log space. These values will be imported to JAGS.
+%distributed. These values will be imported to JAGS.
 
-%beta - prior on log since cannot be less than 0; note same bounds used for independent priors on all utility models
-muLogBetaL=-2.3;muLogBetaU=3.4; %bounds on mean of distribution log beta
-sigmaLogBetaL=0.01;sigmaLogBetaU=1.6;%bounds on the std of distribution of log beta
+% beta - prior on log since cannot be less than 0;
+muLogBetaL=-2.3;muLogBetaU=3.4; %bounds on mean of the distribution of log beta
+sigmaLogBetaL=0.01;sigmaLogBetaU=1.6;%bounds on the std of the distribution of log beta
 
-%eta
-muEtaL=-5; muEtaU=5; %parameters for the mean of the eta parameter (uniformly distributed)
-sigmaEtaL=0.01; sigmaEtaU=1.6; %parameter for the standard diviation on the eta parameter (uniformly distributed)
+% eta
+muEtaL=-5; muEtaU=5; %bounds on the mean of the distribution of eta
+sigmaEtaL=0.01; sigmaEtaU=1.6; %bounds on the std of the distribution of eta
 
 %% Print information for user
 disp('**************');
@@ -64,17 +58,11 @@ disp('**************');
 %initialise matrices with nan values of size subjects x conditions x trials
 dim = nan(nSubjects,nConditions,nTrials); %specify the dimension
 choice = dim; %initialise choice data matrix
-dwLU=dim; dwLL=dim; dwRU=dim; dwRL=dim;%initialise growth-rates
+dwLU=dim; dwLL=dim; dwRU=dim; dwRL=dim;%initialise wealth increments
 w=dim;%initialise wealth
 
 
 %% Compile choice & gamble data
-% Jags cannot deal with partial observations, so we need to specify gamble info for all nodes. This doesn't change anything.
-
-%We allow all agents to have different session length. Therefore we add random gambles to pad out to maxTrials. This
-%allows jags to work since doesn't work for partial observation. This does not affect
-%parameter estimation. nans in the choice data are allowed as long as all covariates are not nan.
-
 trialInds = 1:nTrials;
 for c = 1:nConditions
     switch c
@@ -97,8 +85,8 @@ for c = 1:nConditions
 end %c
 
 %% Nan check
-disp([num2str(length(find(isnan(choice)))),'_nans in choice data']);%nans in choice data do not matter
-disp([num2str(length(find(isnan(dwLU)))),'_nans in gambles Left Upper matrix'])% nans in gamble matrices do
+disp([num2str(length(find(isnan(choice)))),'_nans in choice data']);%nans in choice data is okay
+disp([num2str(length(find(isnan(dwLU)))),'_nans in gambles Left Upper matrix'])% nans in gamble matrices is not
 disp([num2str(length(find(isnan(dwLL)))),'_nans in gambles Left Lower matrix'])
 disp([num2str(length(find(isnan(dwRU)))),'_nans in gambles Right Upper matrix'])
 disp([num2str(length(find(isnan(dwRL)))),'_nans in gambles Right Lower matrix'])
@@ -106,13 +94,12 @@ disp([num2str(length(find(isnan(w)))),'_nans in wealth matrix'])
 
 %% Configure data structure for graphical model & parameters to monitor
 %everything you want jags to use
-
 dataStruct = struct(...
             'nSubjects', nSubjects,'nConditions',nConditions,'nTrials',nTrials,...
             'w',w,'dwLU',dwLU,'dwLL',dwLL,'dwRU',dwRU,'dwRL',dwRL,'y',choice,...
             'muLogBetaL',muLogBetaL,'muLogBetaU',muLogBetaU,'sigmaLogBetaL',sigmaLogBetaL,'sigmaLogBetaU',sigmaLogBetaU,...
             'muEtaL',muEtaL,'muEtaU',muEtaU,'sigmaEtaL',sigmaEtaL,'sigmaEtaU',sigmaEtaU);
-
+%all parameters you want JAGS to output
 for i = 1:nChains
     monitorParameters = {'mu_eta','tau_eta','sigma_eta',...
                             'mu_log_beta','tau_log_beta','sigma_log_beta',...
